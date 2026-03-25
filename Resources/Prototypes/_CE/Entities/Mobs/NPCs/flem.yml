@@ -15,14 +15,14 @@
     goals:
     # Most important - stay alive
     - desiredState:
-        LowHealth: false
-      priority: 4
-    # Second - kill enemies
-    - desiredState:
-        EnemyDead: true
-      priority: 3
-
+        Talked: false
+      priority: 1
     actions:
+    - !type:CEGOAPSpeakAction
+      targetKey: enemy
+      messageKey: speak
+      effects:
+        Talked: false
     # Move to target
     - !type:CEGOAPMoveToTargetAction
       targetKey: enemy
@@ -77,6 +77,10 @@
       cost: 0.5
 
     sensors:
+    - !type:CEGOAPNearestHostileSensor
+      conditionKey: Talked
+      outputTargetKey: enemy
+      visionRadius: 8
     - !type:CEGOAPNearestHostileSensor
       conditionKey: EnemyVisible
       outputTargetKey: enemy
