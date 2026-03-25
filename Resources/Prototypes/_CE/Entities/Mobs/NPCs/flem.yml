@@ -21,6 +21,7 @@
     - !type:CEGOAPSpeakAction
       targetKey: enemy
       messageKey: speak
+      message: HI
       effects:
         Talked: false
     # Move to target
@@ -79,7 +80,7 @@
     sensors:
     - !type:CEGOAPNearestHostileSensor
       conditionKey: Talked
-      outputTargetKey: enemy
+      outputTargetKey: speak
       visionRadius: 8
     - !type:CEGOAPNearestHostileSensor
       conditionKey: EnemyVisible

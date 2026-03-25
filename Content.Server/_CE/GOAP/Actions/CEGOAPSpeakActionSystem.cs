@@ -18,6 +18,9 @@ public sealed partial class CEGOAPSpeakAction : CEGOAPActionBase<CEGOAPSpeakActi
 
     public string MessageKey = CEGOAPSpeakActionSystem.SpeakTargetKey;
 
+    [DataField]
+    public string Message = string.Empty;
+
 }
 
 public sealed partial class CEGOAPSpeakActionSystem : CEGOAPActionSystem<CEGOAPSpeakAction>
@@ -40,17 +43,20 @@ public sealed partial class CEGOAPSpeakActionSystem : CEGOAPActionSystem<CEGOAPS
     protected override void OnCanExecute(Entity<CEGOAPComponent> ent, ref CEGOAPActionCanExecuteEvent<CEGOAPSpeakAction> args)
     {
         base.OnCanExecute(ent, ref args);
+        if (!HasComp<SpeechComponent>(ent))
+            args.CanExecute = false;
     }
 
     protected override void OnActionStartup(Entity<CEGOAPComponent> ent, ref CEGOAPActionStartupEvent<CEGOAPSpeakAction> args)
     {
         base.OnActionStartup(ent, ref args);
 
-        var target = GetTarget(ent, args.Action.TargetKey);
-        if (target == null)
+        var self = GetTarget(ent, CEGOAPSystem.SelfTargetKey);
+        if (self == null)
             return;
-        EnsureComp<SpeechComponent>(ent, out var comp);
+        EnsureComp<SpeechComponent>(self.Value, out var comp);
         comp.SpeechVerb = "Cluwne";
+
     }
 
     protected override void OnActionUpdate(Entity<CEGOAPComponent> ent, ref CEGOAPActionUpdateEvent<CEGOAPSpeakAction> args)
@@ -59,10 +65,13 @@ public sealed partial class CEGOAPSpeakActionSystem : CEGOAPActionSystem<CEGOAPS
         var target = GetTarget(ent, args.Action.MessageKey);
         if (target == null)
             return;
-        _chat.TrySendInGameICMessage(ent, MetaData(target.Value).EntityName, Shared.Chat.InGameICChatType.Speak, false, nameOverride: "Test");
         if (TryComp<CEDamageableComponent>(ent, out var comp))
             _damage.ChangeDamage((ent, comp), 1, out var damage);
 
+        var argMessage = args.Action.Message;
+        var message = Loc.HasString(argMessage) ? Loc.GetString(argMessage) : argMessage;
+
+        _chat.TrySendInGameICMessage(ent, message, Shared.Chat.InGameICChatType.Speak, false);
     }
     protected override void OnActionShutdown(Entity<CEGOAPComponent> ent, ref CEGOAPActionShutdownEvent<CEGOAPSpeakAction> args)
     {
