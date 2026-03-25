@@ -56,7 +56,10 @@ public sealed partial class CEGOAPSpeakActionSystem : CEGOAPActionSystem<CEGOAPS
     protected override void OnActionUpdate(Entity<CEGOAPComponent> ent, ref CEGOAPActionUpdateEvent<CEGOAPSpeakAction> args)
     {
         base.OnActionUpdate(ent, ref args);
-        _chat.TrySendInGameICMessage(ent, "test", Shared.Chat.InGameICChatType.Speak, false, nameOverride: "Test");
+        var target = GetTarget(ent, args.Action.MessageKey);
+        if (target == null)
+            return;
+        _chat.TrySendInGameICMessage(ent, MetaData(target.Value).EntityName, Shared.Chat.InGameICChatType.Speak, false, nameOverride: "Test");
         if (TryComp<CEDamageableComponent>(ent, out var comp))
             _damage.ChangeDamage((ent, comp), 1, out var damage);
 
